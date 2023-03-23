@@ -59,14 +59,18 @@ fn extract_arcs_from_nets(ctx: &npnr::Context, nets: &npnr::Nets) -> Vec<route::
                 let sink = sink_ref.cell().unwrap();
                 let sink = sink.location();
                 for sink_wire in ctx.sink_wires(net, *sink_ref) {
-                    arcs.push(route::Arc::new(
+                    let arc = route::Arc::new(
                         source_wire,
                         Some(source),
                         sink_wire,
                         Some(sink),
                         net.index(),
                         nets.name_from_index(net.index()),
-                    ));
+                    );
+                    if !arcs.contains(&arc) && arc.source_wire() != arc.sink_wire()
+                    {
+                        arcs.push(arc);
+                    }
 
                     if verbose {
                         let source_wire = ctx.name_of_wire(source_wire).to_str().unwrap();
